@@ -3,8 +3,11 @@
 __pycache__/
 settings.json
 *.tmp
-music/*/*
-!music/*/.add_your_music_here
+# Local audio stays untracked. Placeholder files stay in git, including
+# music/<category>/.add_your_music_here and music/ambience/<pack>/.add_your_music_here.
+music/**
+!music/**/
+!music/**/.add_your_music_here
 .venv*/
 *.log
 *.bak

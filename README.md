@@ -1,17 +1,20 @@
 # GM Audio Helper — Discord D&D Music Bot
 
-A Windows-friendly Discord bot that plays your **local music files** in a voice channel. Choose a music category using a Discord dropdown; the bot shuffles its tracks and plays continuously until you stop or change categories.
+A Windows-friendly Discord bot that plays your **local music files** in a voice channel. Choose a music category using a Discord dropdown; the bot shuffles its tracks and plays continuously until you stop or change categories. You can also loop ambience — rain, a fireplace, a crowd — underneath the music, or on its own.
 
 ## Features
 
 - Automatically discovers folders and audio files (MP3, OGG, WAV, FLAC, M4A, OPUS)
 - Unlimited categories, displayed 25 at a time
 - Shuffled continuous playback, avoiding immediate repeats across cycles
-- Pause/resume, skip, stop, volume ±10%, and playback status
-- Automatically joins the DM's voice channel when selecting a category
+- Pause/resume, skip, stop, music volume ±10%, and playback status
+- A separate looping ambience layer (rain, thunder, fireplace, and so on) mixed under the music, or on its own
+- Stack ambience packs (rain + thunder, fireplace + wind). Each pack loops until you remove it
+- Music and ambience have separate volumes. Skipping, pausing, or stopping the music leaves ambience running
+- Automatically joins the DM's voice channel when selecting a category or adding ambience
 - DM role or Manage Server permission required to control playback
-- Remembers volume per Discord server
-- `/panel`, `/rescan`, `/join`, `/leave` slash commands
+- Remembers music volume and ambience volume per Discord server
+- `/panel`, `/rescan`, `/join`, `/leave`, and `/ambience` slash commands
 - Runs locally on Windows; no hosting subscription
 
 ## Setup (Windows 11)
@@ -69,8 +72,9 @@ Double-click `start_bot.bat`. The first run creates a Python virtual environment
 1. Join your usual voice channel.
 2. In a Discord text channel, type `/panel`.
 3. Select a category from the dropdown. The bot joins your channel and plays a random track.
-4. Use the panel buttons for skip, pause/resume, stop, and volume.
-5. Use `/leave` when finished.
+4. Use the panel buttons for skip, pause/resume, stop, and music volume. Pause and stop affect the music only.
+5. Optional: add weather or room tone with `/ambience add rain` (and another pack, such as `/ambience add thunder`). It loops under the song. `/ambience stop` clears just the ambience.
+6. Use `/leave` when finished. That stops both layers and disconnects.
 
 ## Adding new songs or categories
 
@@ -79,6 +83,45 @@ Double-click `start_bot.bat`. The first run creates a Python virtual environment
 - Category names are folder names. A folder with no supported audio files is ignored.
 - Subfolders inside categories are included recursively.
 - Category navigation uses 25 categories per page.
+- The folder `music/ambience/` is reserved for looping beds. It does not appear in the category menu.
+
+## Adding ambience
+
+Ambience is a second layer: tavern songs with rain outside, combat with a fireplace still crackling, a crowd under exploration, and so on. Discord can only send **one** audio stream to a voice channel, so the bot mixes the song and the ambience on your PC and sends the combined audio.
+
+Put looping files in a pack folder:
+
+```
+music/
+  Tavern/
+    Warm Fireplace.mp3
+  ambience/
+    rain/
+      Steady Rain.ogg
+    thunder/
+      Distant Thunder.wav
+    fireplace/
+      Fireplace.flac
+    wind/
+    forest/
+    crowd/
+```
+
+The repo includes empty starter packs: `rain`, `thunder`, `fireplace`, `wind`, `forest`, and `crowd`. Add your own audio that you have permission to use. One long looping file per pack is the usual case. If a pack has several files, they play in name order and then the whole pack loops.
+
+WAV, FLAC, and OGG loop most cleanly. MP3 works, but some files have a short seam at the loop point.
+
+Then run `/rescan`. You can stack up to 6 packs. Each one is its own ffmpeg decode, so a couple of layers is plenty for a session.
+
+| Command | What it does |
+| --- | --- |
+| `/ambience add` | Start looping a pack. Joins your voice channel. Does not restart the music. |
+| `/ambience remove` | Drop one pack. Other packs and the music keep going. |
+| `/ambience list` | Show packs on disk, what is looping, and both volumes. |
+| `/ambience stop` | Stop every ambience pack. Music is unchanged. |
+| `/ambience volume` | Set ambience loudness from 0 to 100. Default is 30%. |
+
+Music volume is still the panel **±10%** buttons (default 35%) and is stored separately. Either layer can play alone: ambience with no category selected, or music with no ambience. `/leave` stops both.
 
 ## Troubleshooting
 
@@ -88,13 +131,18 @@ Double-click `start_bot.bat`. The first run creates a Python virtual environment
 - **Bot joins but no sound (other causes):** verify `ffmpeg -version` and that the audio file is playable. Check the terminal for errors. Check your Discord bot volume and local Discord client volume.
 - **`ModuleNotFoundError`:** use `start_bot.bat` to install dependencies in its virtual environment.
 - **`PrivilegedIntentsRequired`:** the app should not require privileged intents; check that you're running the included `bot.py`.
-- **A category is missing:** check that its folder contains a supported file, run `/rescan`, then run `/panel` again.
+- **A category is missing:** check that its folder contains a supported file, run `/rescan`, then run `/panel` again. `music/ambience/` is not a music category.
+- **Ambience command can't find a pack:** the folder needs at least one supported audio file. Put it in `music/ambience/<name>/`, run `/rescan`, then `/ambience add`.
+- **Loop has a click or a short gap:** use WAV, FLAC, or OGG for ambience beds. MP3 loop points are often imperfect.
+- **Audio stutters with several packs:** each pack is decoded live. Remove a layer with `/ambience remove`, or use shorter/simpler files.
 - **Playback fails after a while:** inspect the terminal. Keep your PC awake and online.
 - **Bot is offline:** run `start_bot.bat`; it only stays online while that program and PC are running.
 
 ## Technical notes / limitations
 
-- Music switches immediately; **crossfading is not implemented**.
+- Music switches immediately; **crossfading between songs is not implemented**.
+- Ambience is mixed in PCM with the current song (20 ms frames) before Opus encoding, because a Discord voice connection carries only one audio stream. Pausing or stopping the music does not stop ambience. Pause with no ambience running pauses the whole stream, so the bot is not marked as speaking over silence.
+- Up to 6 ambience packs can loop at once. They share one ambience volume.
 - Discord component menus allow at most 25 options; this project paginates category choices.
 - One player per Discord server; it can serve multiple servers independently.
 - Existing posted panels may retain their old category lists until you run `/panel` again. On restart, the default persistent panel is restored, but a fresh `/panel` is recommended if you were using category pages beyond the first.
