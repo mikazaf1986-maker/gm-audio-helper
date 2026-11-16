@@ -1,0 +1,4 @@
+discord.py[voice]>=2.5,<3
+python-dotenv>=1.0,<2
+
+davey>=0.1.6,<0.2  # davey 0.2.0 breaks voice sending with discord.py 2.7.1 (issue #10549)

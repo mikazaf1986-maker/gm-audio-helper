@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+settings.json
+*.tmp
+music/*/*
+!music/*/.add_your_music_here
+.venv*/
+*.log
+*.bak
