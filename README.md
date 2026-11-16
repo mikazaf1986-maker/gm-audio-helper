@@ -1,4 +1,4 @@
-# 🧛 Strahd's Jukebox — Discord D&D Music Bot
+# GM Audio Helper — Discord D&D Music Bot
 
 A Windows-friendly Discord bot that plays your **local music files** in a voice channel. Choose a music category using a Discord dropdown; the bot shuffles its tracks and plays continuously until you stop or change categories.
 
@@ -27,7 +27,7 @@ Install FFmpeg from https://ffmpeg.org/download.html . Make sure `ffmpeg.exe` is
 ### 3. Register the bot with Discord
 
 1. Visit https://discord.com/developers/applications and select **New Application**.
-2. Give it a name such as `Strahd's Jukebox`.
+2. Give it a name such as `GMAH`.
 3. Under **Bot**, create/reset and **copy the token**. Never share this token, commit it to Git, or send it in chat.
 4. Under **Installation**, set up a Guild Install link with scopes **bot** and **applications.commands**. Give the bot permissions **View Channels**, **Send Messages**, **Embed Links**, **Connect**, and **Speak**. You may also need **Use Application Commands**, depending on server permissions.
 5. Open the installation link and add it to a Discord server you manage.
@@ -37,7 +37,7 @@ Install FFmpeg from https://ffmpeg.org/download.html . Make sure `ffmpeg.exe` is
 
 ### 4. Configure the program
 
-1. Extract this ZIP to a convenient folder, such as `C:\\DND\\StrahdsJukebox`.
+1. Extract this ZIP to a convenient folder, such as `C:\\DND\\GMAH`.
 2. Copy `.env.example` to `.env` (enable filename extensions in Windows Explorer if needed).
 3. Open `.env` in Notepad and replace `PASTE_YOUR_BOT_TOKEN_HERE` with your Discord bot token.
 4. Optional but recommended: set `TEST_GUILD_ID` to your Discord server ID. Enable **Developer Mode** under Discord Settings > Advanced, right-click your server icon, and select **Copy Server ID**. This makes slash commands register in your server promptly.
@@ -62,7 +62,7 @@ The ZIP includes empty starter folders. You must supply your own audio files tha
 
 ### 6. Start the bot
 
-Double-click `start_bot.bat`. The first run creates a Python virtual environment and installs dependencies (internet required). Keep the Command Prompt window open during the session. You should see a message like `Logged in as Strahd's Jukebox`.
+Double-click `start_bot.bat`. The first run creates a Python virtual environment and installs dependencies (internet required). Keep the Command Prompt window open during the session. You should see a message like `Logged in as GMAH`.
 
 ### 7. Play in Discord
 
